@@ -20,6 +20,7 @@ import com.codahale.metrics.Meter;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.rackspacecloud.blueflood.cache.LocatorCache;
 import com.rackspacecloud.blueflood.concurrent.FunctionWithThreadPool;
+import com.rackspacecloud.blueflood.inputs.MetricsProducer;
 import com.rackspacecloud.blueflood.io.DiscoveryIO;
 import com.rackspacecloud.blueflood.service.Configuration;
 import com.rackspacecloud.blueflood.service.CoreConfig;
@@ -42,17 +43,20 @@ public class DiscoveryWriter extends FunctionWithThreadPool<List<List<IMetric>>,
     private static final Logger log = LoggerFactory.getLogger(DiscoveryWriter.class);
     private final boolean canIndex;
 
+    private final MetricsProducer producer;
+
     public DiscoveryWriter(ThreadPoolExecutor threadPool) {
         super(threadPool);
         registerIOModules();
         this.canIndex = discoveryIOs.size() > 0;
+        producer = new MetricsProducer();
     }
 
     public void registerIO(DiscoveryIO io) {
         discoveryIOs.add(io);
         writeErrorMeters.put(io.getClass(),
                 Metrics.meter(io.getClass(), "DiscoveryWriter Write Errors")
-                );
+        );
     }
 
     public void registerIOModules() {
@@ -137,9 +141,22 @@ public class DiscoveryWriter extends FunctionWithThreadPool<List<List<IMetric>>,
 
     @Override
     public Void apply(List<List<IMetric>> input) {
-        if (canIndex) {
-            processMetrics(input);
+//        if (canIndex) {
+//            processMetrics(input);
+//        }
+
+        List<IMetric> metricList = flattenMetricItems(input);
+        producer.send(metricList);
+
+        return null;
+    }
+
+    private List<IMetric> flattenMetricItems(final List<List<IMetric>> metricItems){
+        List<IMetric> flattenedMetricList = new ArrayList<>();
+
+        for(List<IMetric> metricList : metricItems){
+            flattenedMetricList.addAll(metricList);
         }
-	return null;
+        return flattenedMetricList;
     }
 }

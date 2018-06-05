@@ -194,6 +194,23 @@ public enum CoreConfig implements ConfigDefaults {
 
     ENABLE_DTX_INGEST_BATCH("false"),
 
+
+    // Kafka Producer config
+    // KAFKA_BOOTSTRAP_SERVERS("<kafka.server.1>:9092;<kafka.server.2>:9092;<kafka.server.3>:9092"),
+    KAFKA_BOOTSTRAP_SERVERS("127.0.0.1:9092"),
+    TRUSTSTORE_LOCATION("<truststore location>"),
+    TRUSTSTORE_PASSWORD("<password>"),
+    KEYSTORE_LOCATION("<Keystore location>"),
+    KEYSTORE_PASSWORD("<Keystore Password>"),
+    KEY_PASSWORD("<Key Password>"),
+    // The 'acks' config controls the criteria under which requests are considered complete.
+    // The "all" setting will result in blocking on the full commit of the record, the slowest but most durable setting.
+    KAFKA_PRODUCER_ACKS("all"),
+    // If the request fails, the producer can automatically retry for that many times
+    KAFKA_PRODUCER_RETRIES("10"),
+    KAFKA_METRICS_TOPIC_NAME("blueflood-metrics"),
+
+
     // Cross-Origin Resource Sharing
     CORS_ENABLED("false"),
     CORS_ALLOWED_ORIGINS("*"),
